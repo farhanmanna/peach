@@ -1,0 +1,36 @@
+{
+  "name": "peachpayments/checkout-sdk",
+  "description": "Peach Payments - Checkout SDK.",
+  "keywords": [
+    "peach payment",
+    "peach payments",
+    "payment processing",
+    "api",
+    "Checkout"
+  ],
+  "homepage": "https://peachpayments.com/",
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Peach Payments and contributors",
+      "homepage": "https://gitlab.com/peachpayments/payment-links-sdks"
+    }
+  ],
+  "require": {
+    "php": ">=7.4.0",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "PeachPayments\\": "lib/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PeachPayments\\": [
+      ]
+    }
+  }
+}

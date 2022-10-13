@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  example:
+    build: .
+    volumes:
+      - .:/usr/src/sdk
+    # command: php ./examples/create.php
+    # command: php ./examples/getStatus.php
+    # command: php ./examples/cancel.php
+    command: php ./examples/create.php
