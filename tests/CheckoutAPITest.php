@@ -8,6 +8,13 @@ use PeachPayments\Checkout\Customer;
 use PeachPayments\http\Response;
 use PeachPayments\HttpClient;
 
+/**
+ * @covers PeachPayments\Checkout\CheckoutAPI
+ * @covers PeachPayments\Checkout\CheckoutOptions
+ * @covers PeachPayments\Checkout\Address
+ * @covers PeachPayments\Checkout\Customer
+ * @covers PeachPayments\http\Response
+ */
 final class CheckoutAPITest extends TestCase
 {
   public function testSignDataWithRequiredFields(): void

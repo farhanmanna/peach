@@ -9,4 +9,10 @@ test:
     - docker
   script:
     - composer install
-    - vendor/bin/phpunit tests
+    - XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-cobertura coverage.xml tests
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
