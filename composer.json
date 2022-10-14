@@ -24,13 +24,11 @@
   },
   "autoload": {
     "psr-4": {
+      "PeachPayments\\Checkout\\": "lib/",
       "PeachPayments\\": "lib/"
     }
   },
-  "autoload-dev": {
-    "psr-4": {
-      "PeachPayments\\": [
-      ]
-    }
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
   }
 }

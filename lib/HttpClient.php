@@ -11,7 +11,7 @@ class HttpClient
      * Basic curl request
      * @throws \JsonException
      */
-    public static function request(string $url, string $method, $postFields = [], ?array $headers = [])
+    public function request(string $url, string $method, $postFields = [], ?array $headers = [])
     {
         $curl = curl_init();
 
@@ -54,7 +54,7 @@ class HttpClient
      * @return mixed|void
      * @throws \JsonException
      */
-    public static function get(string $url, ?array $headers = [])
+    public function get(string $url, ?array $headers = [])
     {
         return Self::request($url, 'GET', [], $headers);
     }
@@ -67,7 +67,7 @@ class HttpClient
      * @return mixed|void
      * @throws \JsonException
      */
-    public static function post(string $url, $postFields = [], ?array $headers = [])
+    public function post(string $url, $postFields = [], ?array $headers = [])
     {
         return Self::request($url, 'POST', $postFields, $headers);
     }

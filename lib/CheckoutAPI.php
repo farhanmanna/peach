@@ -17,18 +17,24 @@ class CheckoutAPI
   private string $entityId = '';
   private string $secret = '';
   public string $baseUrl = 'https://secure.peachpayments.com/';
+  private HttpClient $httpClient;
 
-  public function __construct(string $entityId, string $secret)
+  public function __construct(string $entityId, string $secret, HttpClient $httpClient = null)
   {
     $this->entityId = $entityId;
     $this->secret = $secret;
+    if ($httpClient) {
+      $this->httpClient = $httpClient;
+    } else {
+      $this->httpClient = new HttpClient();
+    }
   }
 
   public function initiateSession(CheckoutOptions $options, string $referer)
   {
     $body = Self::generateSignature($this->entityId, $this->secret, $options);
 
-    $response = HttpClient::post(
+    $response = $this->httpClient->post(
       $this->baseUrl . 'checkout/initiate',
       json_encode($body),
       [
@@ -44,7 +50,7 @@ class CheckoutAPI
   {
     $body = Self::generateSignature($this->entityId, $this->secret, $options);
 
-    $response = HttpClient::post(
+    $response = $this->httpClient->post(
       $this->baseUrl . 'checkout/validate',
       json_encode($body),
       [
@@ -60,9 +66,9 @@ class CheckoutAPI
   {
     $body = Self::generateSignature($this->entityId, $this->secret, $options);
 
-    $form = ['<form method="POST" action="' .  $this->baseUrl . 'checkout">'];
+    $form = ['<form class="checkout-form" method="POST" action="' .  $this->baseUrl . 'checkout">'];
     foreach ($body as $key => $value) {
-      $form[] = '<input type="text" name="' . $key . '" value="' . $value . '" />';
+      $form[] = '<input type="hidden" name="' . $key . '" value="' . $value . '" />';
     }
     $form[] = '<button class="checkout-button" type="submit">Proceed to Checkout</button>';
     $form[] = '</form>';
@@ -84,7 +90,7 @@ class CheckoutAPI
     return $body;
   }
 
-  private static function map(CheckoutOptions $options, array $mapping)
+  private static function map($options, array $mapping)
   {
     $mapped = array();
 
@@ -102,14 +108,16 @@ class CheckoutAPI
       if ($key == "amount") {
         $mapped[$key] = number_format($value, 2, '.', '');
       } else if ($key == "createRegistration") {
-        $mapped[$key] = strval($value);
+        $mapped[$key] = $value ? 'true' : 'false';
       } else if ($key == "customParameters") {
         // Checkout expects custom parameters to look like
         // customParameters[name] = value
         // e.g. customParameters[PAYMENT_SMS_COUNT] = "1"
-        foreach ($options[$key] as $customParameter => $customValue) {
+        foreach ($value as $customParameter => $customValue) {
           $mapped[$key . '[' . $customParameter . ']'] = $customValue;
         }
+
+        unset($mapped[$key]);
       }
     }
 
@@ -121,7 +129,7 @@ class CheckoutAPI
     $result = array();
 
     foreach ($input as $key => $value) {
-      if (is_object($value)) {
+      if (is_object($value) || is_array($value)) {
         $result = array_merge($result, Self::flatten($value, $key . '.'));
       } else {
         $result[$prefix . $key] = $value;
