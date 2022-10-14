@@ -5,6 +5,8 @@ stages:
 
 test:
   stage: test
+  tags:
+    - docker
   script:
     - composer install
     - vendor/bin/phpunit tests
