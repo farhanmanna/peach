@@ -1,0 +1,10 @@
+image: registry.gitlab.com/peachpayments/checkout-php-sdk:latest
+
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - composer install
+    - vendor/bin/phpunit tests
