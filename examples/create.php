@@ -15,7 +15,12 @@ $response = $client->checkout->initiateSession($options, "https://localhost");
 
 print_r($response);
 
-$redirectUrl = $response["redirectUrl"];
+if ($response->code == 200) {
+  $redirectUrl = $response->body->redirectUrl;
 
-// Redirect user to url.
-# header('Location: ' . $redirectUrl);
+  // Redirect user to url.
+  # header('Location: ' . $redirectUrl);
+} else {
+  // :(
+  // Checkout instance could not be created
+}

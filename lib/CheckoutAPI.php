@@ -2,8 +2,12 @@
 
 namespace PeachPayments\Checkout;
 
+use PeachPayments\http\Response;
 use PeachPayments\HttpClient;
 
+/**
+ * Mapping between SDK properties and API properties.
+ */
 const MAPPING = array(
   'entityId' => 'authentication.entityId',
   'transactionId' => 'merchantTransactionId',
@@ -12,15 +16,33 @@ const MAPPING = array(
   'postCode' => "postcode",
 );
 
-class CheckoutAPI
+/**
+ * Class for interacting with the Checkout API.
+ */
+final class CheckoutAPI
 {
+  /**
+   * The entity ID that will be used on Checkout.
+   */
   private string $entityId = '';
+  /**
+   * The secret that will be used to sign requests.
+   */
   private string $secret = '';
+  /**
+   * The Checkout URL.
+   */
   public string $baseUrl = 'https://secure.peachpayments.com/';
+  /**
+   * The handler for calling the API.
+   */
   private HttpClient $httpClient;
 
-  public function __construct(string $entityId, string $secret, HttpClient $httpClient = null)
-  {
+  public function __construct(
+    string $entityId,
+    string $secret,
+    HttpClient $httpClient = null
+  ) {
     $this->entityId = $entityId;
     $this->secret = $secret;
     if ($httpClient) {
@@ -30,9 +52,16 @@ class CheckoutAPI
     }
   }
 
-  public function initiateSession(CheckoutOptions $options, string $referer)
+  /**
+   * Initiate a Checkout session, this will return a URL that the user must be redirected to, to complete the Checkout process.
+   * 
+   * @param \PeachPayments\Checkout\CheckoutOptions $options Payment request details.
+   * @param string $referer An allowlisted URL for the merchant.
+   * @return \PeachPayments\http\Response A response from the API.
+   */
+  public function initiateSession(CheckoutOptions $options, string $referer): Response
   {
-    $body = Self::generateSignature($this->entityId, $this->secret, $options);
+    $body = Self::signData($this->entityId, $this->secret, $options);
 
     $response = $this->httpClient->post(
       $this->baseUrl . 'checkout/initiate',
@@ -46,9 +75,16 @@ class CheckoutAPI
     return $response;
   }
 
-  public function validate(CheckoutOptions $options, string $referer)
+  /**
+   * Validate that a Checkout instance could be created from the specified payment request details.
+   * 
+   * @param \PeachPayments\Checkout\CheckoutOptions $options Payment request details.
+   * @param string $referer An allowlisted URL for the merchant.
+   * @return \PeachPayments\http\Response A response from the API.
+   */
+  public function validate(CheckoutOptions $options, string $referer): Response
   {
-    $body = Self::generateSignature($this->entityId, $this->secret, $options);
+    $body = Self::signData($this->entityId, $this->secret, $options);
 
     $response = $this->httpClient->post(
       $this->baseUrl . 'checkout/validate',
@@ -62,9 +98,15 @@ class CheckoutAPI
     return $response;
   }
 
-  public function prepareFormPost(CheckoutOptions $options)
+  /**
+   * Generate an array of form elements for a particular payment request, this can be output to on a page, to let the user action the request which will create the Checkout instance.
+   * 
+   * @param \PeachPayments\Checkout\CheckoutOptions $options Payment request details.
+   * @return array An array of form elements, with a button labelled `Proceed to Checkout`
+   */
+  public function prepareFormPost(CheckoutOptions $options): array
   {
-    $body = Self::generateSignature($this->entityId, $this->secret, $options);
+    $body = Self::signData($this->entityId, $this->secret, $options);
 
     $form = ['<form class="checkout-form" method="POST" action="' .  $this->baseUrl . 'checkout">'];
     foreach ($body as $key => $value) {
@@ -76,8 +118,22 @@ class CheckoutAPI
     return $form;
   }
 
-  public static function generateSignature(string $entityId, string $secret, CheckoutOptions $options)
-  {
+  /**
+   * Sign the data for a particular Payment request.
+   * Creates an array that has been flattened, as required by the Checkout API, adds the signature to the array.
+   * 
+   * Will generate a nonce if one has not been set.
+   * 
+   * @param string $entityId The entity ID for the request
+   * @param string $secret The secret to use to generate the signature
+   * @param \PeachPayments\Checkout\CheckoutOptions $options Payment request details.
+   * @return array A flattened array of the payment request, with signature and entity Id attached.
+   */
+  public static function signData(
+    string $entityId,
+    string $secret,
+    CheckoutOptions $options
+  ): array {
     if (empty($options->nonce)) {
       $options->nonce = Self::getUuid();
     }
@@ -85,12 +141,36 @@ class CheckoutAPI
     $body = Self::flatten(Self::map($options, MAPPING), '');
     $body['authentication.entityId'] = $entityId;
 
-    $body['signature'] = Self::sign($body, $secret);
+    $body['signature'] = Self::generateSignature($body, $secret);
 
     return $body;
   }
 
-  private static function map($options, array $mapping)
+  /**
+   * Generate a signature for a particular body.
+   * 
+   * @param array $body A flat list of data that is sorted and signed in the Checkout manner.
+   * @param string $secret The secret to sign the data with
+   * @return string A signature based on the data.
+   */
+  public static function generateSignature(array $body, string $secret): string
+  {
+    ksort($body, SORT_STRING);
+
+    $result = '';
+
+    foreach ($body as $key => $value) {
+      if (is_string($value) && empty($value)) {
+        continue;
+      }
+
+      $result = $result . str_replace('_', '.', $key) . $value;
+    }
+
+    return hash_hmac('sha256', $result, $secret);
+  }
+
+  private static function map($options, array $mapping): array
   {
     $mapped = array();
 
@@ -124,7 +204,7 @@ class CheckoutAPI
     return $mapped;
   }
 
-  private static function flatten($input, string $prefix = '')
+  private static function flatten($input, string $prefix = ''): array
   {
     $result = array();
 
@@ -139,28 +219,12 @@ class CheckoutAPI
     return $result;
   }
 
-  private static function sign(array $body, string $secret)
-  {
-    ksort($body, SORT_STRING);
-
-    $result = '';
-
-    foreach ($body as $key => $value) {
-      if (is_string($value) && empty($value)) {
-        continue;
-      }
-
-      $result = $result . str_replace('_', '.', $key) . $value;
-    }
-
-    return hash_hmac('sha256', $result, $secret);
-  }
-
   /**
+   * Generate a UUID.
+   * 
    * @return string
-   * @throws Exception
    */
-  private static function getUuid()
+  private static function getUuid(): string
   {
     $data = random_bytes(16);
 

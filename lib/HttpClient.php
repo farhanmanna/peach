@@ -2,6 +2,8 @@
 
 namespace PeachPayments;
 
+use PeachPayments\http\Response;
+
 /**
  *  Currently only CURL client
  */
@@ -11,8 +13,12 @@ class HttpClient
      * Basic curl request
      * @throws \JsonException
      */
-    public function request(string $url, string $method, $postFields = [], ?array $headers = [])
-    {
+    public function request(
+        string $url,
+        string $method,
+        $postFields = [],
+        ?array $headers = []
+    ): Response {
         $curl = curl_init();
 
         curl_setopt_array($curl, [
@@ -30,16 +36,7 @@ class HttpClient
 
         $body = curl_exec($curl);
 
-        print_r($body);
-
-        $responseCode = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-        $response = json_decode($body, false);
-
-        if ($responseCode !== '200' || !$response) {
-            print_r(curl_error($curl));
-            curl_close($curl);
-            die();
-        }
+        $response = new Response(curl_getinfo($curl, CURLINFO_RESPONSE_CODE), json_decode($body, false));
 
         curl_close($curl);
 
@@ -51,11 +48,12 @@ class HttpClient
      * @param string $url
      * @param $postFields
      * @param array|null $headers
-     * @return mixed|void
      * @throws \JsonException
      */
-    public function get(string $url, ?array $headers = [])
-    {
+    public function get(
+        string $url,
+        ?array $headers = []
+    ): Response {
         return Self::request($url, 'GET', [], $headers);
     }
 
@@ -64,11 +62,13 @@ class HttpClient
      * @param string $url
      * @param $postFields
      * @param array|null $headers
-     * @return mixed|void
      * @throws \JsonException
      */
-    public function post(string $url, $postFields = [], ?array $headers = [])
-    {
+    public function post(
+        string $url,
+        $postFields = [],
+        ?array $headers = []
+    ): Response {
         return Self::request($url, 'POST', $postFields, $headers);
     }
 }
