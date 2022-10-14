@@ -149,7 +149,7 @@ final class CheckoutAPI
   /**
    * Generate a signature for a particular body.
    * 
-   * @param array $body A flat list of data that is sorted and signed in the Checkout manner.
+   * @param array $body A flat list of data that is sorted in the Checkout manner.
    * @param string $secret The secret to sign the data with
    * @return string A signature based on the data.
    */
@@ -160,7 +160,7 @@ final class CheckoutAPI
     $result = '';
 
     foreach ($body as $key => $value) {
-      if (is_string($value) && empty($value)) {
+      if ($key === 'signature' || (is_string($value) && empty($value))) {
         continue;
       }
 

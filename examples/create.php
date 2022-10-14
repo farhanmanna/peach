@@ -19,7 +19,7 @@ if ($response->code == 200) {
   $redirectUrl = $response->body->redirectUrl;
 
   // Redirect user to url.
-  # header('Location: ' . $redirectUrl);
+  // header('Location: ' . $redirectUrl);
 } else {
   // :(
   // Checkout instance could not be created
