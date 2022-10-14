@@ -5,6 +5,7 @@ use PHPUnit\Framework\TestCase;
 use PeachPayments\Checkout\CheckoutAPI;
 use PeachPayments\Checkout\CheckoutOptions;
 use PeachPayments\Checkout\Customer;
+use PeachPayments\HttpClient;
 
 final class CheckoutAPITest extends TestCase
 {
@@ -206,5 +207,61 @@ final class CheckoutAPITest extends TestCase
     foreach ($items as $key => $value) {
       $this->assertSame($value, $form[$key]);
     }
+  }
+
+  public function testValidate(): void
+  {
+    $httpClient = $this->createMock(HttpClient::class);
+    $httpClient->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://secure.peachpayments.com/checkout/validate'),
+        $this->equalTo('{"amount":"12.32","nonce":"0987654321","shopperResultUrl":"https:\/\/httpbin.org\/post","merchantTransactionId":"INV-001","currency":"ZAR","paymentType":"DB","authentication.entityId":"123","signature":"e8d2a1b7075d5f811be5000922ee3631c7b2f89444bc8960fd321cd2fd68d1f7"}'),
+        $this->equalTo(
+          [
+            'Content-Type: application/json',
+            'Accepts: application/json',
+            'Referer: https://localhost'
+          ]
+        )
+      )
+      ->willReturn('{}');
+
+    $api = new CheckoutAPI('123', '321', $httpClient);
+
+    $options = new CheckoutOptions('INV-001', 'ZAR', 12.32, 'https://httpbin.org/post');
+    $options->nonce = '0987654321';
+
+    $form = $api->validate($options, 'https://localhost');
+
+    $this->assertSame('{}', $form);
+  }
+
+  public function testInitiateSession(): void
+  {
+    $httpClient = $this->createMock(HttpClient::class);
+    $httpClient->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://secure.peachpayments.com/checkout/initiate'),
+        $this->equalTo('{"amount":"12.32","nonce":"0987654321","shopperResultUrl":"https:\/\/httpbin.org\/post","merchantTransactionId":"INV-001","currency":"ZAR","paymentType":"DB","authentication.entityId":"123","signature":"e8d2a1b7075d5f811be5000922ee3631c7b2f89444bc8960fd321cd2fd68d1f7"}'),
+        $this->equalTo(
+          [
+            'Content-Type: application/json',
+            'Accepts: application/json',
+            'Referer: https://localhost'
+          ]
+        )
+      )
+      ->willReturn('{}');
+
+    $api = new CheckoutAPI('123', '321', $httpClient);
+
+    $options = new CheckoutOptions('INV-001', 'ZAR', 12.32, 'https://httpbin.org/post');
+    $options->nonce = '0987654321';
+
+    $form = $api->initiateSession($options, 'https://localhost');
+
+    $this->assertSame('{}', $form);
   }
 }
