@@ -3,6 +3,9 @@ image: registry.gitlab.com/peachpayments/checkout-php-sdk:latest
 stages:
   - test
 
+include:
+  - template: Security/SAST.gitlab-ci.yml
+
 test:
   stage: test
   tags:
