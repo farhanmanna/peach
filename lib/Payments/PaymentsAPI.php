@@ -42,7 +42,15 @@ final class PaymentsAPI
     }
   }
 
-  public function refund(string $transactionId, string $currency, float $amount): Response
+  /**
+   * Refund a Checkout transaction
+   * 
+   * @param string $transactionId The ID of the transaction used to complete the Checkout.
+   * @param string $currency The currency to refund in.
+   * @param float $amount The amount to refund, doesn't have to be the full amount, partial refunds are supported..
+   * @return \PeachPayments\http\Response A response from the API.
+   */
+  public function refundCheckout(string $transactionId, string $currency, float $amount): Response
   {
     $body = array(
       'amount' => number_format($amount, 2, ',', ''),

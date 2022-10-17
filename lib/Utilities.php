@@ -1,12 +1,20 @@
 <?php
 
+/**
+ * Flatten a nested array/object into a flat dot separated array.
+ * 
+ * @param mixed $input The object/array to flatten.
+ * @param string $prefix Used recursively to specify the nested object's key's prefix.
+ * 
+ * @return array A flat array.
+ */
 function flatten($input, string $prefix = ''): array
 {
   $result = array();
 
   foreach ($input as $key => $value) {
     if (is_object($value) || is_array($value)) {
-      $result = array_merge($result, Self::flatten($value, $key . '.'));
+      $result = array_merge($result, flatten($value, $key . '.'));
     } else {
       $result[$prefix . $key] = $value;
     }

@@ -6,6 +6,8 @@ use PeachPayments\http\Response;
 use PeachPayments\HttpClient;
 use PeachPayments\Signature;
 
+require(__DIR__ . '/../Utilities.php');
+
 /**
  * Mapping between SDK properties and API properties.
  */
@@ -119,6 +121,12 @@ final class CheckoutAPI
     return $form;
   }
 
+  /**
+   * Retrieve a list of enabled payment methods for a channel given a particular currency.
+   * 
+   * @param string $currency Three-letter ISO 4217 currency code.
+   * @return \PeachPayments\http\Response A response from the API.
+   */
   public function getPaymentMethods(string $currency): Response
   {
     $body = array(
@@ -138,6 +146,13 @@ final class CheckoutAPI
     return $response;
   }
 
+  /**
+   * Gets the status of a Checkout instance.
+   * 
+   * @param string $checkoutId ID of the Checkout, sent in the webhook when created.
+   * @param string $merchantTransactionId Merchant specified transaction ID.
+   * @return \PeachPayments\http\Response A response from the API.
+   */
   public function getStatus(string $checkoutId, string $merchantTransactionId): Response
   {
     $query = array(
