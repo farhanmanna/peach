@@ -137,6 +137,30 @@ final class CheckoutAPI
     return $response;
   }
 
+  public function getStatus(string $checkoutId, string $merchantTransactionId): Response
+  {
+    $query = array(
+      'authentication.entityId' => $this->entityId,
+      'checkoutId' => $checkoutId,
+      'merchantTransactionId' => $merchantTransactionId,
+    );
+
+    $query['signature'] = $this::generateSignature($query, $this->secret);
+
+    $params = '';
+
+    foreach ($query as $key => $value) {
+      $params = $params . $key . '=' . $value . '&';
+    }
+
+    $params = rtrim($params, '&');
+
+    $response = $this->httpClient->get(
+      $this->baseUrl . 'status?' . $params
+    );
+    return $response;
+  }
+
   /**
    * Sign the data for a particular Payment request.
    * Creates an array that has been flattened, as required by the Checkout API, adds the signature to the array.
