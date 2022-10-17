@@ -274,4 +274,28 @@ final class CheckoutAPITest extends TestCase
     $this->assertSame(200, $form->code);
     $this->assertSame('', $form->body);
   }
+
+  public function testgetPaymentMethods(): void
+  {
+    $httpClient = $this->createMock(HttpClient::class);
+    $httpClient->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://secure.peachpayments.com/merchant_specs'),
+        $this->equalTo('{"authentication.entityId":"123","currency":"ZAR","signature":"bc64fee618ca70093e1734ce0421942125ebff3f7ff7da17aedecd2a1020b1d1"}'),
+        $this->equalTo(
+          [
+            'Content-Type: application/json',
+          ]
+        )
+      )
+      ->willReturn(new Response(200, ''));
+
+    $api = new CheckoutAPI('123', '321', $httpClient);
+
+    $form = $api->getPaymentMethods('ZAR');
+
+    $this->assertSame(200, $form->code);
+    $this->assertSame('', $form->body);
+  }
 }

@@ -118,6 +118,25 @@ final class CheckoutAPI
     return $form;
   }
 
+  public function getPaymentMethods(string $currency): Response
+  {
+    $body = array(
+      'authentication.entityId' => $this->entityId,
+      'currency' => $currency,
+    );
+
+    $body['signature'] = $this::generateSignature($body, $this->secret);
+
+    $response = $this->httpClient->post(
+      $this->baseUrl . 'merchant_specs',
+      json_encode($body),
+      [
+        'Content-Type: application/json',
+      ]
+    );
+    return $response;
+  }
+
   /**
    * Sign the data for a particular Payment request.
    * Creates an array that has been flattened, as required by the Checkout API, adds the signature to the array.
