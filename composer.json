@@ -25,8 +25,10 @@
   "autoload": {
     "psr-4": {
       "PeachPayments\\Checkout\\": "lib/Checkout",
-      "PeachPayments\\": "lib/",
-      "PeachPayments\\http\\": "lib/http"
+      "PeachPayments\\http\\": "lib/http",
+      "PeachPayments\\Signature\\": "lib/Signature",
+      "PeachPayments\\Payments\\": "lib/Payments",
+      "PeachPayments\\": "lib/"
     }
   },
   "require-dev": {

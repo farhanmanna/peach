@@ -4,6 +4,7 @@ namespace PeachPayments\Checkout;
 
 use PeachPayments\http\Response;
 use PeachPayments\HttpClient;
+use PeachPayments\Signature;
 
 /**
  * Mapping between SDK properties and API properties.
@@ -125,7 +126,7 @@ final class CheckoutAPI
       'currency' => $currency,
     );
 
-    $body['signature'] = $this::generateSignature($body, $this->secret);
+    $body['signature'] = Signature::generate($body, $this->secret);
 
     $response = $this->httpClient->post(
       $this->baseUrl . 'merchant_specs',
@@ -145,7 +146,7 @@ final class CheckoutAPI
       'merchantTransactionId' => $merchantTransactionId,
     );
 
-    $query['signature'] = $this::generateSignature($query, $this->secret);
+    $query['signature'] = Signature::generate($query, $this->secret);
 
     $params = '';
 
@@ -178,39 +179,15 @@ final class CheckoutAPI
     CheckoutOptions $options
   ): array {
     if (empty($options->nonce)) {
-      $options->nonce = Self::getUuid();
+      $options->nonce = getUuid();
     }
 
-    $body = Self::flatten(Self::map($options, MAPPING), '');
+    $body = flatten(Self::map($options, MAPPING), '');
     $body['authentication.entityId'] = $entityId;
 
-    $body['signature'] = Self::generateSignature($body, $secret);
+    $body['signature'] = Signature::generate($body, $secret);
 
     return $body;
-  }
-
-  /**
-   * Generate a signature for a particular body.
-   * 
-   * @param array $body A flat list of data that is sorted in the Checkout manner.
-   * @param string $secret The secret to sign the data with
-   * @return string A signature based on the data.
-   */
-  public static function generateSignature(array $body, string $secret): string
-  {
-    ksort($body, SORT_STRING);
-
-    $result = '';
-
-    foreach ($body as $key => $value) {
-      if ($key === 'signature' || (is_string($value) && empty($value))) {
-        continue;
-      }
-
-      $result = $result . str_replace('_', '.', $key) . $value;
-    }
-
-    return hash_hmac('sha256', $result, $secret);
   }
 
   private static function map($options, array $mapping): array
@@ -245,35 +222,5 @@ final class CheckoutAPI
     }
 
     return $mapped;
-  }
-
-  private static function flatten($input, string $prefix = ''): array
-  {
-    $result = array();
-
-    foreach ($input as $key => $value) {
-      if (is_object($value) || is_array($value)) {
-        $result = array_merge($result, Self::flatten($value, $key . '.'));
-      } else {
-        $result[$prefix . $key] = $value;
-      }
-    }
-
-    return $result;
-  }
-
-  /**
-   * Generate a UUID.
-   * 
-   * @return string
-   */
-  private static function getUuid(): string
-  {
-    $data = random_bytes(16);
-
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
-
-    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
   }
 }

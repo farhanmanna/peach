@@ -1,6 +1,6 @@
 <?php
 
-use PeachPayments\Checkout\CheckoutAPI;
+use PeachPayments\Signature;
 
 require(__DIR__ . "/../vendor/autoload.php");
 require "config.php";
@@ -17,7 +17,7 @@ $webhookData = array(
   'timestamp' => '2022-10-14T06:05:44Z'
 );
 
-$signature = CheckoutAPI::generateSignature($webhookData, 'THIS_IS_MY_SECRET');
+$signature = Signature::generate($webhookData, 'THIS_IS_MY_SECRET');
 
 $receivedSignature = $webhookData['signature'];
 
