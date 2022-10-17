@@ -24,8 +24,9 @@
   },
   "autoload": {
     "psr-4": {
-      "PeachPayments\\Checkout\\": "lib/",
-      "PeachPayments\\": "lib/"
+      "PeachPayments\\Checkout\\": "lib/Checkout",
+      "PeachPayments\\": "lib/",
+      "PeachPayments\\http\\": "lib/http"
     }
   },
   "require-dev": {
