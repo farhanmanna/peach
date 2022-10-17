@@ -13,6 +13,9 @@ use PeachPayments\HttpClient;
  * @covers PeachPayments\Checkout\CheckoutOptions
  * @covers PeachPayments\Checkout\Address
  * @covers PeachPayments\Checkout\Customer
+ * @covers PeachPayments\Signature
+ * @covers ::flatten
+ * @covers ::getUuid
  * @covers PeachPayments\http\Response
  */
 final class CheckoutAPITest extends TestCase

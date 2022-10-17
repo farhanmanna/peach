@@ -7,11 +7,12 @@ use PeachPayments\Payments\PaymentsAPI;
 
 /**
  * @covers PeachPayments\Payments\PaymentsAPI
+ * @covers PeachPayments\Signature
  * @covers PeachPayments\http\Response
  */
 final class PaymentsAPITest extends TestCase
 {
-  public function testGetStatus(): void
+  public function testRefundCheckout(): void
   {
     $httpClient = $this->createMock(HttpClient::class);
     $httpClient->expects($this->once())

@@ -6,7 +6,9 @@ use PeachPayments\http\Response;
 use PeachPayments\HttpClient;
 use PeachPayments\Signature;
 
+// @codeCoverageIgnoreStart
 require(__DIR__ . '/../Utilities.php');
+// @codeCoverageIgnoreEnd
 
 /**
  * Mapping between SDK properties and API properties.

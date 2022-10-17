@@ -24,3 +24,5 @@ Edit the `examples/config.php` file and set the entity id and secret for the Che
 `docker compose run example sh` - Launch into the Docker container, to be able to run PHP commands.
 
 `./vendor/bin/phpunit tests` - Run tests.
+
+`XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-cobertura coverage.xml tests` - Run tests with code coverage
