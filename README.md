@@ -1,5 +1,34 @@
 # Peach Payments - Checkout SDK
 
+## Requirements
+
+PHP 7.4.0 and later.
+
+## Composer
+
+You can install the sdk via [Composer](http://getcomposer.org/). Run the following command:
+
+```bash
+composer require peachpayments/checkout-sdk
+```
+
+To use the sdk, use Composer's [autoload](https://getcomposer.org/doc/01-basic-usage.md#autoloading):
+
+```php
+require_once('vendor/autoload.php');
+```
+
+## Dependencies
+
+The sdk require the following extensions in order to work properly:
+
+- [`curl`](https://secure.php.net/manual/en/book.curl.php)
+- [`json`](https://secure.php.net/manual/en/book.json.php)
+- [`mbstring`](https://secure.php.net/manual/en/book.mbstring.php)
+
+If you use Composer, these dependencies should be handled automatically. If you install manually, you'll want to make
+sure that these extensions are available.
+
 ## Prod
 
 `composer install --no-dev` - Install dependencies without dev dependencies.
