@@ -1,4 +1,4 @@
-image: registry.gitlab.com/peachpayments/checkout-php-sdk:latest
+image: registry.gitlab.com/p2886/checkout-php-sdk:latest
 
 stages:
   - test
