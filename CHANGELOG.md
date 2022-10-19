@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0
+ - Get transaction status
+
 ## 1.0.0
  - Create Checkout via html form
  - Create Checkout via redirect

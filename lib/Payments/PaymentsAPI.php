@@ -71,4 +71,33 @@ final class PaymentsAPI
     );
     return $response;
   }
+
+  /**
+   * Get transaction status
+   * 
+   * @param string $transactionId The ID of the transaction used to complete the Checkout.
+   * @return \PeachPayments\http\Response A response from the API.
+   */
+  public function getTransactionStatus(string $merchantTransactionId): Response
+  {
+    $query = array(
+      'authentication.entityId' => $this->entityId,
+      'merchantTransactionId' => $merchantTransactionId,
+    );
+
+    $query['signature'] = Signature::generate($query, $this->secret);
+
+    $params = '';
+
+    foreach ($query as $key => $value) {
+      $params = $params . $key . '=' . $value . '&';
+    }
+
+    $params = rtrim($params, '&');
+
+    $response = $this->httpClient->get(
+      $this->baseUrl . 'v1/checkout/status?' . $params
+    );
+    return $response;
+  }
 }
