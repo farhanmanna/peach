@@ -28,4 +28,14 @@ class PaymentsClient
   {
     $this->payments->baseUrl = 'https://testapi.peachpayments.com/';
   }
+
+  /**
+   * Initialise the Payments API class with an entityId and secret.
+   * 
+   * Required in cases where PaymentClient needs to be dependency injected.
+   */
+  public function initialise(string $entityId, string $secret)
+  {
+    $this->payments->initialise($entityId, $secret);
+  }
 }

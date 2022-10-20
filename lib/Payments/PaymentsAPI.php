@@ -14,11 +14,11 @@ final class PaymentsAPI
   /**
    * The entity ID that will be used on Payments.
    */
-  private string $entityId = '';
+  private ?string $entityId;
   /**
    * The secret that will be used to sign requests.
    */
-  private string $secret = '';
+  private ?string $secret;
   /**
    * The Payments URL.
    */
@@ -29,8 +29,8 @@ final class PaymentsAPI
   private HttpClient $httpClient;
 
   public function __construct(
-    string $entityId,
-    string $secret,
+    ?string $entityId,
+    ?string $secret,
     HttpClient $httpClient = null
   ) {
     $this->entityId = $entityId;
@@ -43,6 +43,17 @@ final class PaymentsAPI
   }
 
   /**
+   * Initialise the Payments API class with an entityId and secret.
+   * 
+   * Required in cases where PaymentsClient needs to be dependency injected.
+   */
+  public function initialise(string $entityId, string $secret)
+  {
+    $this->entityId = $entityId;
+    $this->secret = $secret;
+  }
+
+  /**
    * Refund a Checkout transaction
    * 
    * @param string $transactionId The ID of the transaction used to complete the Checkout.
@@ -52,6 +63,9 @@ final class PaymentsAPI
    */
   public function refundCheckout(string $transactionId, string $currency, float $amount): Response
   {
+    assert(!empty($this->entityId), 'Error: entityId cannot be empty');
+    assert(!empty($this->secret), 'Error: seccret cannot be empty');
+
     $body = array(
       'amount' => number_format($amount, 2, ',', ''),
       'authentication.entityId' => $this->entityId,
@@ -80,6 +94,9 @@ final class PaymentsAPI
    */
   public function getTransactionStatus(string $merchantTransactionId): Response
   {
+    assert(!empty($this->entityId), 'Error: entityId cannot be empty');
+    assert(!empty($this->secret), 'Error: seccret cannot be empty');
+
     $query = array(
       'authentication.entityId' => $this->entityId,
       'merchantTransactionId' => $merchantTransactionId,
