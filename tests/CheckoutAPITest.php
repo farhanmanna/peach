@@ -319,4 +319,44 @@ final class CheckoutAPITest extends TestCase
     $this->assertSame(200, $form->code);
     $this->assertSame('', $form->body);
   }
+
+  public function testRequireInitialiseToBeCalled(): void
+  {
+    $api = new CheckoutAPI(null, null, null);
+
+    $options = new CheckoutOptions('INV-001', 'ZAR', 12.32, 'https://httpbin.org/post');
+
+    $this->expectError();
+    $this->expectErrorMessage('Error: entityId cannot be empty');
+
+    $api->prepareFormPost($options);
+
+    $api = new CheckoutAPI('1234', null, null);
+
+    $this->expectError();
+    $this->expectErrorMessage('Error: secret cannot be empty');
+
+    $api->prepareFormPost($options);
+
+    $api = new CheckoutAPI(null, null, null);
+    $api->initialise("123", "321");
+
+    $options->nonce = '0987654321';
+
+    $form = $api->prepareFormPost($options);
+
+    $this->assertCount(11, $form);
+
+    $this->assertSame('<form class="checkout-form" method="POST" action="https://secure.peachpayments.com/checkout">', $form[0]);
+    $this->assertSame('<input type="hidden" name="amount" value="12.32" />', $form[1]);
+    $this->assertSame('<input type="hidden" name="nonce" value="0987654321" />', $form[2]);
+    $this->assertSame('<input type="hidden" name="shopperResultUrl" value="https://httpbin.org/post" />', $form[3]);
+    $this->assertSame('<input type="hidden" name="merchantTransactionId" value="INV-001" />', $form[4]);
+    $this->assertSame('<input type="hidden" name="currency" value="ZAR" />', $form[5]);
+    $this->assertSame('<input type="hidden" name="paymentType" value="DB" />', $form[6]);
+    $this->assertSame('<input type="hidden" name="authentication.entityId" value="123" />', $form[7]);
+    $this->assertSame('<input type="hidden" name="signature" value="e8d2a1b7075d5f811be5000922ee3631c7b2f89444bc8960fd321cd2fd68d1f7" />', $form[8]);
+    $this->assertSame('<button class="checkout-button" type="submit">Proceed to Checkout</button>', $form[9]);
+    $this->assertSame('</form>', $form[10]);
+  }
 }

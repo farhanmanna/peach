@@ -29,11 +29,11 @@ final class CheckoutAPI
   /**
    * The entity ID that will be used on Checkout.
    */
-  private string $entityId = '';
+  private ?string $entityId = '';
   /**
    * The secret that will be used to sign requests.
    */
-  private string $secret = '';
+  private ?string $secret = '';
   /**
    * The Checkout URL.
    */
@@ -44,8 +44,8 @@ final class CheckoutAPI
   private HttpClient $httpClient;
 
   public function __construct(
-    string $entityId,
-    string $secret,
+    ?string $entityId,
+    ?string $secret,
     HttpClient $httpClient = null
   ) {
     $this->entityId = $entityId;
@@ -58,6 +58,17 @@ final class CheckoutAPI
   }
 
   /**
+   * Initialise the Checkout API class with an entityId and secret.
+   * 
+   * Required in cases where CheckoutClient needs to be dependency injected.
+   */
+  public function initialise(string $entityId, string $secret)
+  {
+    $this->entityId = $entityId;
+    $this->secret = $secret;
+  }
+
+  /**
    * Initiate a Checkout session, this will return a URL that the user must be redirected to, to complete the Checkout process.
    * 
    * @param \PeachPayments\Checkout\CheckoutOptions $options Payment request details.
@@ -66,6 +77,9 @@ final class CheckoutAPI
    */
   public function initiateSession(CheckoutOptions $options, string $referer): Response
   {
+    assert(!empty($this->entityId), 'Error: entityId cannot be empty');
+    assert(!empty($this->secret), 'Error: seccret cannot be empty');
+
     $body = Self::signData($this->entityId, $this->secret, $options);
 
     $response = $this->httpClient->post(
@@ -89,6 +103,9 @@ final class CheckoutAPI
    */
   public function validate(CheckoutOptions $options, string $referer): Response
   {
+    assert(!empty($this->entityId), 'Error: entityId cannot be empty');
+    assert(!empty($this->secret), 'Error: seccret cannot be empty');
+
     $body = Self::signData($this->entityId, $this->secret, $options);
 
     $response = $this->httpClient->post(
@@ -111,6 +128,9 @@ final class CheckoutAPI
    */
   public function prepareFormPost(CheckoutOptions $options): array
   {
+    assert(!empty($this->entityId), 'Error: entityId cannot be empty');
+    assert(!empty($this->secret), 'Error: seccret cannot be empty');
+
     $body = Self::signData($this->entityId, $this->secret, $options);
 
     $form = ['<form class="checkout-form" method="POST" action="' .  $this->baseUrl . 'checkout">'];
@@ -131,6 +151,9 @@ final class CheckoutAPI
    */
   public function getPaymentMethods(string $currency): Response
   {
+    assert(!empty($this->entityId), 'Error: entityId cannot be empty');
+    assert(!empty($this->secret), 'Error: seccret cannot be empty');
+
     $body = array(
       'authentication.entityId' => $this->entityId,
       'currency' => $currency,
@@ -157,6 +180,9 @@ final class CheckoutAPI
    */
   public function getStatus(string $checkoutId, string $merchantTransactionId): Response
   {
+    assert(!empty($this->entityId), 'Error: entityId cannot be empty');
+    assert(!empty($this->secret), 'Error: seccret cannot be empty');
+
     $query = array(
       'authentication.entityId' => $this->entityId,
       'checkoutId' => $checkoutId,
@@ -195,6 +221,8 @@ final class CheckoutAPI
     string $secret,
     CheckoutOptions $options
   ): array {
+    assert(function_exists('hash_hmac'), 'Error: hash_hmac function does not exist');
+
     if (empty($options->nonce)) {
       $options->nonce = getUuid();
     }

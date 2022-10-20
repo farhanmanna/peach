@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0
+ - Allow specifying the entity Id/secret outside of the constructor for CheckoutClient/PaymentClient
+
 ## 1.1.0
  - Get transaction status
 
