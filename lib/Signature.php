@@ -18,7 +18,7 @@ final class Signature
     $result = '';
 
     foreach ($body as $key => $value) {
-      if ($key === 'signature' || (is_string($value) && empty($value))) {
+      if ($key === 'signature') {
         continue;
       }
 
