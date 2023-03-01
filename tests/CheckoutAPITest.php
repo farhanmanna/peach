@@ -125,6 +125,26 @@ final class CheckoutAPITest extends TestCase
     $this->assertSame('ae2c44f131f4845b960eb49b1558e772b3b8c462f689b0ca629a3a25c7bb1775', $body['signature']);
   }
 
+  public function testSignDataWithRequiredFieldsAndEmptyFields(): void
+  {
+    $options = new CheckoutOptions('INV-001', 'ZAR', 12.32, 'https://httpbin.org/post');
+    $options->invoiceId = '';
+    $options->nonce = '0987654321';
+
+    $body = CheckoutAPI::signData('123', '321', $options);
+
+    $this->assertCount(9, $body);
+    $this->assertSame('12.32', $body['amount']);
+    $this->assertSame('0987654321', $body['nonce']);
+    $this->assertSame('https://httpbin.org/post', $body['shopperResultUrl']);
+    $this->assertSame('INV-001', $body['merchantTransactionId']);
+    $this->assertSame('ZAR', $body['currency']);
+    $this->assertSame('DB', $body['paymentType']);
+    $this->assertSame('123', $body['authentication.entityId']);
+    $this->assertSame('', $body['merchantInvoiceId']);
+    $this->assertSame('17e38ad3f9884ed6ac43274e1e2e8e81b4151783f1bcfb4fd670c41d81a6f8b7', $body['signature']);
+  }
+
   public function testPrepareFormPostWithRequiredFields(): void
   {
     $api = new CheckoutAPI('123', '321');
