@@ -13,7 +13,7 @@
   "authors": [
     {
       "name": "Peach Payments and contributors",
-      "homepage": "https://gitlab.com/peachpayments/payment-links-sdks"
+      "homepage": "https://github.com/farhanmanna/peach"
     }
   ],
   "require": {
